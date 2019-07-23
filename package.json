@@ -17,6 +17,10 @@
     "react": "^16.8",
     "react-dom": "^16.8"
   },
+  "resolutions": {
+    "js-yaml": "3.13.1",
+    "braces": "2.3.1"
+  },
   "scripts": {
     "build": "microbundle --raw --jsx React.createElement",
     "dev": "microbundle watch --jsx React.createElement",
