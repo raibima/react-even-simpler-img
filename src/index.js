@@ -120,6 +120,7 @@ export function useImgLoader(src, config) {
         if (imgNode === null) {
           return;
         }
+        console.log('Observing:', imgNode);
         observer = getObserver();
         observer.observe(imgNode);
       } else {
