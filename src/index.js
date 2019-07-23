@@ -22,6 +22,7 @@ const CONFIG = {
   rootMargin: '0px 0px',
   threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
 };
+const DEFAULT_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
 export function ImageLoader({ children }) {
   const [cache, dispatch] = useReducer((state, action) => {
@@ -160,7 +161,7 @@ export function useImgLoader(src, config) {
     throw new Error(`SimpleImg: Failed to load img: ${src}`);
   }
 
-  return '';
+  return DEFAULT_PLACEHOLDER;
 }
 
 export function SimpleImg(props) {
