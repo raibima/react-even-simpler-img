@@ -1,0 +1,28 @@
+{
+  "name": "react-even-simpler-img",
+  "version": "0.1.0",
+  "license": "MIT",
+  "source": "src/index.js",
+  "main": "dist/react-even-simpler-img.js",
+  "module": "dist/react-even-simpler-img.m.js",
+  "umd:main": "dist/react-even-simpler-img.umd.js",
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-plugin-react": "^7.14.3",
+    "microbundle": "^0.11.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  },
+  "peerDependencies": {
+    "react": "^16.8",
+    "react-dom": "^16.8"
+  },
+  "scripts": {
+    "build": "microbundle --jsx React.createElement",
+    "dev": "microbundle watch --jsx React.createElement",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "lodash.debounce": "^4.0.8"
+  }
+}
