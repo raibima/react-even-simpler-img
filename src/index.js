@@ -1,6 +1,4 @@
 import * as React from 'react';
-import debounce from 'tiny-debounce';
-import PropTypes from 'prop-types';
 
 const {
   useState,
@@ -185,14 +183,6 @@ function isPromise(val) {
   return val && typeof val.then === 'function';
 }
 
-// eslint-disable-next-line
-if (process.env.NODE_ENV === 'development') {
-  SimpleImg.propTypes = {
-    src: PropTypes.string,
-    importance: PropTypes.oneOf(['auto', 'low']),
-  };
-}
-
 function fetchImg(src) {
   const img = new Image();
   return new Promise((resolve, reject) => {
@@ -200,4 +190,16 @@ function fetchImg(src) {
     img.onload = resolve;
     img.onerror = reject;
   });
+}
+
+function debounce(fn, delay) {
+  let timeoutID = null;
+  return function() {
+    clearTimeout(timeoutID);
+    const args = arguments;
+    const that = this;
+    timeoutID = setTimeout(function() {
+      fn.apply(that, args);
+    }, delay);
+  };
 }
