@@ -1,6 +1,6 @@
 {
   "name": "react-even-simpler-img",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "license": "MIT",
   "source": "src/index.js",
   "main": "dist/react-even-simpler-img.js",
