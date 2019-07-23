@@ -17,7 +17,11 @@ const Status = {
   IDLE: 0,
   PENDING: 1,
   LOADED: 2,
-  ERROR: 3
+  ERROR: 3,
+};
+const CONFIG = {
+  rootMargin: '0px 0px',
+  threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
 };
 
 export function ImageLoader({ children }) {
@@ -130,7 +134,7 @@ export function useImgLoader(src, config) {
 
     function getObserver() {
       if (_observer.current === null) {
-        return new IntersectionObserver(handleIntersect);
+        return new IntersectionObserver(handleIntersect, CONFIG);
       }
       return _observer.current;
     }
@@ -155,17 +159,17 @@ export function useImgLoader(src, config) {
     return src;
   }
 
-  return "";
+  return '';
 }
 
 export function SimpleImg(props) {
   const { src, importance, ...rest } = props;
   const [imgNode, setImgNode] = useState(null);
   const imgSrc = useImgLoader(src, {
-    lazy: importance === "low",
-    imgNode
+    lazy: importance === 'low',
+    imgNode,
   });
-  const assignNode = useCallback(node => {
+  const assignNode = useCallback((node) => {
     if (node !== null) {
       setImgNode(node);
     }
@@ -175,7 +179,7 @@ export function SimpleImg(props) {
 }
 
 function isPromise(val) {
-  return val && typeof val.then === "function";
+  return val && typeof val.then === 'function';
 }
 
 function fetchImg(src) {
