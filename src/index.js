@@ -22,7 +22,27 @@ const CONFIG = {
   rootMargin: '0px 0px',
   threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
 };
-const DEFAULT_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+const DEFAULT_PLACEHOLDER =
+  'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
+const styles = {
+  wrapper: {
+    position: 'relative',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    transition: '0.3s opacity ease',
+    opacity: 0,
+  },
+  reveal: {
+    opacity: 1,
+  },
+  stretch: {
+    width: '100%',
+  },
+};
 
 export function ImageLoader({ children }) {
   const [cache, dispatch] = useReducer((state, action) => {
@@ -67,7 +87,7 @@ export function ImageLoader({ children }) {
     function getValue(src) {
       return cache[src];
     }
-    async function loadImage(src) {
+    async function loadImage(src, imgNode) {
       const status = getStatus(src);
       let promise;
       if (status === Status.IDLE) {
@@ -88,7 +108,11 @@ export function ImageLoader({ children }) {
       }
 
       try {
-        await promise;
+        const { height } = await promise;
+
+        // set parent height
+        imgNode.parentNode.style.height = `${height}px`;
+
         dispatch({ type: 'didLoad', payload: src });
         return true;
       } catch (err) {
@@ -119,15 +143,12 @@ export function useImgLoader(src, config) {
 
   useEffect(() => {
     let observer;
-    if (status === Status.IDLE) {
+    if (status === Status.IDLE && imgNode instanceof HTMLImageElement) {
       if (lazy) {
-        if (imgNode === null) {
-          return;
-        }
         observer = getObserver();
         observer.observe(imgNode);
       } else {
-        loadImage(src);
+        loadImage(src, imgNode);
       }
     }
 
@@ -141,7 +162,7 @@ export function useImgLoader(src, config) {
     function handleIntersect(entries, self) {
       const { target, intersectionRatio } = entries[0];
       if (intersectionRatio > 0) {
-        loadImage(src);
+        loadImage(src, target);
         self.unobserve(target);
       }
     }
@@ -165,7 +186,8 @@ export function useImgLoader(src, config) {
 }
 
 export function SimpleImg(props) {
-  const { src, importance, ...rest } = props;
+  const { src, importance, style = {}, ...rest } = props;
+  const { width, height } = rest;
   const [imgNode, setImgNode] = useState(null);
   const imgSrc = useImgLoader(src, {
     lazy: importance === 'low',
@@ -176,8 +198,36 @@ export function SimpleImg(props) {
       setImgNode(node);
     }
   }, []);
+  const shouldStretch = !width && !height;
+  const shouldShow = imgSrc !== DEFAULT_PLACEHOLDER;
 
-  return <img ref={assignNode} src={imgSrc} {...rest} />;
+  return (
+    <div style={composeStyles(styles.wrapper, shouldShow && styles.reveal)}>
+      <img
+        ref={assignNode}
+        src={imgSrc}
+        style={composeStyles(style, shouldStretch && styles.stretch)}
+        {...rest}
+      />
+    </div>
+  );
+}
+
+function composeStyles(...styles) {
+  const combinedStyle = {};
+  for (let i = 0; i < styles.length; i++) {
+    const style = styles[i];
+    if (typeof style === 'boolean') {
+      continue;
+    }
+    for (const key in style) {
+      // eslint-disable-next-line
+      if (style.hasOwnProperty(key)) {
+        combinedStyle[key] = style[key];
+      }
+    }
+  }
+  return combinedStyle;
 }
 
 function isPromise(val) {
@@ -188,7 +238,7 @@ function fetchImg(src) {
   const img = new Image();
   return new Promise((resolve, reject) => {
     img.src = src;
-    img.onload = resolve;
+    img.onload = (e) => resolve(e.target);
     img.onerror = reject;
   });
 }
