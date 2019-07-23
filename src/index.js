@@ -136,8 +136,8 @@ export function useImgLoader(src, config) {
     }
 
     function handleIntersect(entries, self) {
-      const { target, intersectionRatio } = entries[0];
-      if (intersectionRatio > 0) {
+      const { target, isIntersecting } = entries[0];
+      if (isIntersecting) {
         console.log('Intersecting:', target);
         loadImage(src);
         self.unobserve(target);
