@@ -159,7 +159,7 @@ export function useImgLoader(src, config) {
   }
 
   if (status === Status.ERROR) {
-    throw new Error('SimpleImg: Failed to load img:', src);
+    throw new Error(`SimpleImg: Failed to load img: ${src}`);
   }
 
   return '';
