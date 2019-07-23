@@ -25,6 +25,6 @@
     "publishPatch": "git commit -am publishPatch && npm version patch && npm publish"
   },
   "dependencies": {
-    "lodash.debounce": "^4.0.8"
+    "tiny-debounce": "^0.1.1"
   }
 }

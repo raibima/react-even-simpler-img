@@ -1,5 +1,5 @@
 import * as React from 'react';
-import debounce from 'lodash.debounce';
+import debounce from 'tiny-debounce';
 import PropTypes from 'prop-types';
 
 const {
