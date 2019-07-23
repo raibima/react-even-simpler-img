@@ -1,5 +1,6 @@
 import * as React from 'react';
 import debounce from 'lodash.debounce';
+import PropTypes from 'prop-types';
 
 const {
   useState,
@@ -124,7 +125,6 @@ export function useImgLoader(src, config) {
         if (imgNode === null) {
           return;
         }
-        console.log('Observing:', imgNode);
         observer = getObserver();
         observer.observe(imgNode);
       } else {
@@ -142,7 +142,6 @@ export function useImgLoader(src, config) {
     function handleIntersect(entries, self) {
       const { target, intersectionRatio } = entries[0];
       if (intersectionRatio > 0) {
-        console.log('Intersecting:', target);
         loadImage(src);
         self.unobserve(target);
       }
@@ -157,6 +156,10 @@ export function useImgLoader(src, config) {
 
   if (status === Status.LOADED) {
     return src;
+  }
+
+  if (status === Status.ERROR) {
+    throw new Error('SimpleImg: Failed to load img:', src);
   }
 
   return '';
@@ -180,6 +183,14 @@ export function SimpleImg(props) {
 
 function isPromise(val) {
   return val && typeof val.then === 'function';
+}
+
+// eslint-disable-next-line
+if (process.env.NODE_ENV === 'development') {
+  SimpleImg.propTypes = {
+    src: PropTypes.string,
+    importance: PropTypes.oneOf(['auto', 'low']),
+  };
 }
 
 function fetchImg(src) {
