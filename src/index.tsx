@@ -11,13 +11,40 @@ const {
   createContext,
 } = React;
 
-const ImgLoaderContext = createContext(null);
-const Status = {
-  IDLE: 0,
-  PENDING: 1,
-  LOADED: 2,
-  ERROR: 3,
+type ImgLoaderContextApi = {
+  getStatus: (src: string) => Status;
+  getValue: (src: string) => CachedEntry;
+  loadImage: (src: string, imgNode: HTMLImageElement) => void;
 };
+
+type ImageLoaderProps = {
+  children: React.ReactNode;
+};
+
+type ReactHTMLImgElementProps = React.DetailedHTMLProps<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  HTMLImageElement
+>;
+
+type SimpleImgProps = ReactHTMLImgElementProps & {
+  importance: 'auto' | 'low';
+};
+
+type CachedEntry = Promise<any> | boolean;
+
+type ImgLoaderConfig = {
+  lazy?: boolean;
+  imgNode?: HTMLImageElement;
+};
+
+enum Status {
+  IDLE = 0,
+  PENDING = 1,
+  LOADED = 2,
+  ERROR = 3,
+}
+
+const ImgLoaderContext = createContext<ImgLoaderContextApi | null>(null);
 const CONFIG = {
   rootMargin: '0px 0px',
   threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
@@ -44,7 +71,7 @@ const styles = {
   },
 };
 
-export function ImageLoader({ children }) {
+export function ImageLoader({ children }: ImageLoaderProps) {
   const [cache, dispatch] = useReducer((state, action) => {
     switch (action.type) {
       case 'willLoad':
@@ -68,7 +95,7 @@ export function ImageLoader({ children }) {
   }, {});
 
   const imgLoaderApi = useMemo(() => {
-    function getStatus(src) {
+    function getStatus(src: string) {
       const value = getValue(src);
       if (typeof value === 'undefined') {
         return Status.IDLE;
@@ -84,10 +111,10 @@ export function ImageLoader({ children }) {
       }
       throw new Error(`Unreachable state`);
     }
-    function getValue(src) {
+    function getValue(src: string) {
       return cache[src];
     }
-    async function loadImage(src, imgNode) {
+    async function loadImage(src: string, imgNode: HTMLImageElement) {
       const status = getStatus(src);
       let promise;
       if (status === Status.IDLE) {
@@ -111,7 +138,10 @@ export function ImageLoader({ children }) {
         const { height } = await promise;
 
         // set parent height
-        imgNode.parentNode.style.height = `${height}px`;
+        const { parentNode } = imgNode;
+        if (parentNode instanceof HTMLElement) {
+          parentNode.style.height = `${height}px`;
+        }
 
         dispatch({ type: 'didLoad', payload: src });
         return true;
@@ -134,18 +164,28 @@ export function ImageLoader({ children }) {
   );
 }
 
-export function useImgLoader(src, config) {
+function useImgLoaderContext() {
+  const ctx = useContext(ImgLoaderContext);
+  if (ctx === null) {
+    throw new Error(
+      `SimpleImg: Cannot find any ImgLoaderContext value. Did you forget to wrap your app with <ImageLoader />?`
+    );
+  }
+  return ctx;
+}
+
+export function useImgLoader(src: string, config: ImgLoaderConfig = {}) {
   const { lazy, imgNode } = config;
-  const { getStatus, loadImage } = useContext(ImgLoaderContext);
+  const { getStatus, loadImage } = useImgLoaderContext();
   const _observer = useRef(null);
 
   const status = getStatus(src);
 
   useEffect(() => {
-    let observer;
+    let observer: IntersectionObserver;
     if (status === Status.IDLE && imgNode instanceof HTMLImageElement) {
       if (lazy) {
-        observer = getObserver();
+        observer = getObserver() as IntersectionObserver;
         observer.observe(imgNode);
       } else {
         loadImage(src, imgNode);
@@ -159,16 +199,19 @@ export function useImgLoader(src, config) {
       return _observer.current;
     }
 
-    function handleIntersect(entries, self) {
+    function handleIntersect(
+      entries: Array<IntersectionObserverEntry>,
+      self: IntersectionObserver
+    ) {
       const { target, intersectionRatio } = entries[0];
-      if (intersectionRatio > 0) {
+      if (intersectionRatio > 0 && target instanceof HTMLImageElement) {
         loadImage(src, target);
         self.unobserve(target);
       }
     }
 
     return () => {
-      if (observer && lazy && imgNode !== null) {
+      if (observer && lazy && imgNode instanceof HTMLElement) {
         observer.unobserve(imgNode);
       }
     };
@@ -185,15 +228,15 @@ export function useImgLoader(src, config) {
   return DEFAULT_PLACEHOLDER;
 }
 
-export function SimpleImg(props) {
-  const { src, importance, style = {}, ...rest } = props;
+export function SimpleImg(props: SimpleImgProps) {
+  const { src = '', importance, style = {}, ...rest } = props;
   const { width, height } = rest;
-  const [imgNode, setImgNode] = useState(null);
+  const [imgNode, setImgNode] = useState<HTMLImageElement | null>(null);
   const imgSrc = useImgLoader(src, {
     lazy: importance === 'low',
-    imgNode,
+    imgNode: imgNode instanceof HTMLImageElement ? imgNode : undefined,
   });
-  const assignNode = useCallback((node) => {
+  const assignNode = useCallback(node => {
     if (node !== null) {
       setImgNode(node);
     }
@@ -213,7 +256,7 @@ export function SimpleImg(props) {
   );
 }
 
-function composeStyles(...styles) {
+function composeStyles(...styles: any[]) {
   const combinedStyle = {};
   for (let i = 0; i < styles.length; i++) {
     const style = styles[i];
@@ -223,6 +266,7 @@ function composeStyles(...styles) {
     for (const key in style) {
       // eslint-disable-next-line
       if (style.hasOwnProperty(key)) {
+        // @ts-ignore
         combinedStyle[key] = style[key];
       }
     }
@@ -230,27 +274,25 @@ function composeStyles(...styles) {
   return combinedStyle;
 }
 
-function isPromise(val) {
+function isPromise(val: any) {
   return val && typeof val.then === 'function';
 }
 
-function fetchImg(src) {
+function fetchImg(src: string) {
   const img = new Image();
   return new Promise((resolve, reject) => {
     img.src = src;
-    img.onload = (e) => resolve(e.target);
+    img.onload = e => resolve(e.target);
     img.onerror = reject;
   });
 }
 
-function debounce(fn, delay) {
-  let timeoutID = null;
-  return function() {
+function debounce(fn: Function, delay: number) {
+  let timeoutID: any;
+  return function(...args: any[]) {
     clearTimeout(timeoutID);
-    const args = arguments;
-    const that = this;
     timeoutID = setTimeout(function() {
-      fn.apply(that, args);
+      fn(...args);
     }, delay);
   };
 }
