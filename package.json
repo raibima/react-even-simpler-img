@@ -2,8 +2,8 @@
   "name": "react-even-simpler-img",
   "version": "0.1.16",
   "main": "dist/index.js",
-  "umd:main": "dist/react-even-simpler-img-ts.umd.production.js",
-  "module": "dist/react-even-simpler-img-ts.esm.production.js",
+  "umd:main": "dist/react-even-simpler-img.umd.production.js",
+  "module": "dist/react-even-simpler-img.esm.production.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -12,7 +12,8 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test --env=jsdom",
-    "prepublishOnly": "npm run build",
+    "checkSize": "bundlesize",
+    "prepublishOnly": "npm run build && npm run checkSize",
     "publishPatch": "git commit -am publishPatch && npm version patch && npm publish"
   },
   "peerDependencies": {
@@ -33,6 +34,7 @@
     "@types/jest": "^24.0.15",
     "@types/react": "^16.8.23",
     "@types/react-dom": "^16.8.5",
+    "bundlesize": "^0.18.0",
     "husky": "^3.0.1",
     "prettier": "^1.18.2",
     "pretty-quick": "^1.11.1",
