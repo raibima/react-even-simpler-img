@@ -44,6 +44,10 @@ enum Status {
   ERROR = 3,
 }
 
+const supportsIntersectionObserver =
+  typeof window !== 'undefined' &&
+  'IntersectionObserver' in window &&
+  'IntersectionObserverEntry' in window;
 const ImgLoaderContext = createContext<ImgLoaderContextApi | null>(null);
 const CONFIG = {
   rootMargin: '0px 0px',
@@ -185,6 +189,17 @@ export function useImgLoader(src: string, config: ImgLoaderConfig = {}) {
     let observer: IntersectionObserver;
     if (status === Status.IDLE && imgNode instanceof HTMLImageElement) {
       if (lazy) {
+        if (!supportsIntersectionObserver) {
+          if (__DEV__) {
+            console.error(
+              'Warning: your browser does not support IntersectionObserver. ' +
+                'Image will not be lazily loaded. ' +
+                'To this is not acceptable for you, you can try polyfilling IntersectionObserver.'
+            );
+          }
+          // fall back to eager load
+          loadImage(src, imgNode);
+        }
         observer = getObserver() as IntersectionObserver;
         observer.observe(imgNode);
       } else {
