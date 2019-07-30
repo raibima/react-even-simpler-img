@@ -27,7 +27,7 @@ ReactDOM.render(
 );
 ```
 
-Use <SimpleImg /> as if it's a normal <img /> HTML element
+Use <SimpleImg /> as if it's a normal Img HTML element
 
 ```tsx
 <SimpleImg src="https://picsum.photos/40" />
