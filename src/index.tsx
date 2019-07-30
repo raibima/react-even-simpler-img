@@ -194,7 +194,7 @@ export function useImgLoader(src: string, config: ImgLoaderConfig = {}) {
             console.error(
               'Warning: your browser does not support IntersectionObserver. ' +
                 'Image will not be lazily loaded. ' +
-                'To this is not acceptable for you, you can try polyfilling IntersectionObserver.'
+                'If this is not acceptable, you can try polyfilling IntersectionObserver.'
             );
           }
           // fall back to eager load
