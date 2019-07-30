@@ -1,27 +1,58 @@
-# TSDX Bootstrap
+# React Even Simpler Img
 
-This project was bootstrapped with [TSDX](https://github.com/jaredpalmer/tsdx).
+## Install
 
-## Local Development
+```bash
+npm install --save react-even-simpler-img
+```
 
-Below is a list of commands you will probably find useful.
+## Import
 
-### `npm start` or `yarn start`
+```tsx
+import { ImageLoader, SimpleImg } from 'react-even-simpler-img';
+```
 
-Runs the project in development/watch mode. Your project will be rebuilt upon changes. TSDX has a special logger for you convenience. Error messages are pretty printed and formatted for compatibility VS Code's Problems tab.
+## Usage
 
-<img src="https://user-images.githubusercontent.com/4060187/52168303-574d3a00-26f6-11e9-9f3b-71dbec9ebfcb.gif" width="600" />
+First, wrap your app with <ImageLoader />:
 
-Your library will be rebuilt if you make edits.
+```tsx
+ReactDOM.render(
+  <ImageLoader>
+    <App />
+  </ImageLoader>,
+  rootNode
+);
+```
 
-### `npm run build` or `yarn build`
+Use <SimpleImg /> as if it's a normal <img /> HTML element
 
-Bundles the package to the `dist` folder.
-The package is optimized and bundled with Rollup into multiple formats (CommonJS, UMD, and ES Module).
+```tsx
+<SimpleImg src="https://picsum.photos/40" />
+```
 
-<img src="https://user-images.githubusercontent.com/4060187/52168322-a98e5b00-26f6-11e9-8cf6-222d716b75ef.gif" width="600" />
+## Lazy Loading
 
-### `npm test` or `yarn test`
+To lazy load images, set `importance` prop to `low`:
 
-Runs the test watcher (Jest) in an interactive mode.
-By default, runs tests related to files changed since the last commit.
+```tsx
+<SimpleImg src="https://picsum.photos/40" importance="low" />
+```
+
+This library uses IntersectionObserver to lazy load images. If the browser doesn't support it, this library will _gracefully degrade_ to eager loading approach.
+
+## Error Handling
+
+To display a fallback when the image is failed to load, you need to wrap it with an [Error Boundary](https://reactjs.org/docs/error-boundaries.html).
+
+```tsx
+// you need to have your own implementation
+// of React error boundary
+import ErrorBoundary from './MyErrorBoundary';
+
+<ErrorBoundary fallback={<MyImgFallback />}>
+  <SimpleImg src="https://rubbish.xyz/foo/bar.jpg" />
+</ErrorBoundary>;
+```
+
+Also check out [react-error-boundary](https://github.com/bvaughn/react-error-boundary) for ready-made ErrorBoundary component!
