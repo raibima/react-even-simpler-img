@@ -27,7 +27,7 @@ type ReactHTMLImgElementProps = React.DetailedHTMLProps<
 >;
 
 type SimpleImgProps = ReactHTMLImgElementProps & {
-  importance: 'auto' | 'low';
+  importance?: 'auto' | 'low';
 };
 
 type CachedEntry = Promise<any> | boolean;
@@ -244,7 +244,7 @@ export function useImgLoader(src: string, config: ImgLoaderConfig = {}) {
 }
 
 export function SimpleImg(props: SimpleImgProps) {
-  const { src = '', importance, style = {}, ...rest } = props;
+  const { src = '', importance = 'auto', style = {}, ...rest } = props;
   const { width, height } = rest;
   const [imgNode, setImgNode] = useState<HTMLImageElement | null>(null);
   const imgSrc = useImgLoader(src, {
