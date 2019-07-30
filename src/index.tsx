@@ -28,6 +28,7 @@ type ReactHTMLImgElementProps = React.DetailedHTMLProps<
 
 type SimpleImgProps = ReactHTMLImgElementProps & {
   importance?: 'auto' | 'low';
+  placeholder?: string;
 };
 
 type CachedEntry = Promise<any> | boolean;
@@ -35,6 +36,7 @@ type CachedEntry = Promise<any> | boolean;
 type ImgLoaderConfig = {
   lazy?: boolean;
   imgNode?: HTMLImageElement;
+  placeholder?: string;
 };
 
 enum Status {
@@ -179,7 +181,7 @@ function useImgLoaderContext() {
 }
 
 export function useImgLoader(src: string, config: ImgLoaderConfig = {}) {
-  const { lazy, imgNode } = config;
+  const { lazy, imgNode, placeholder = DEFAULT_PLACEHOLDER } = config;
   const { getStatus, loadImage } = useImgLoaderContext();
   const _observer = useRef(null);
 
@@ -240,16 +242,24 @@ export function useImgLoader(src: string, config: ImgLoaderConfig = {}) {
     throw new Error(`SimpleImg: Failed to load img: ${src}`);
   }
 
-  return DEFAULT_PLACEHOLDER;
+  return placeholder;
 }
 
 export function SimpleImg(props: SimpleImgProps) {
-  const { src = '', importance = 'auto', style = {}, ...rest } = props;
+  const {
+    src = '',
+    importance = 'auto',
+    placeholder = DEFAULT_PLACEHOLDER,
+    style = {},
+    ...rest
+  } = props;
+
   const { width, height } = rest;
   const [imgNode, setImgNode] = useState<HTMLImageElement | null>(null);
   const imgSrc = useImgLoader(src, {
     lazy: importance === 'low',
     imgNode: imgNode instanceof HTMLImageElement ? imgNode : undefined,
+    placeholder,
   });
   const assignNode = useCallback(node => {
     if (node !== null) {
@@ -257,7 +267,7 @@ export function SimpleImg(props: SimpleImgProps) {
     }
   }, []);
   const shouldStretch = !width && !height;
-  const shouldShow = imgSrc !== DEFAULT_PLACEHOLDER;
+  const shouldShow = imgSrc !== placeholder;
 
   return (
     <div style={composeStyles(styles.wrapper, shouldShow && styles.reveal)}>
