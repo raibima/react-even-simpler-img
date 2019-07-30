@@ -6,9 +6,9 @@ import { SimpleImg as RSimpleImg } from 'react-simple-img';
 import { ImageLoader, SimpleImg } from '../';
 
 const urls = [
-  `https://picsum.photos/200?foo=${Math.random().toString(16)}`,
-  `https://picsum.photos/200?foo=${Math.random().toString(16)}`,
-  `https://picsum.photos/200?foo=${Math.random().toString(16)}`,
+  `https://picsum.photos/800/450?foo=${Math.random().toString(16)}`,
+  `https://picsum.photos/800/450?foo=${Math.random().toString(16)}`,
+  `https://picsum.photos/800/450?foo=${Math.random().toString(16)}`,
 ];
 
 const App = () => {
