@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "./dist/react-even-simpler-img.cjs.production.min.js",
-      "maxSize": "3 kB"
+      "maxSize": "2 kB"
     }
   ]
 }
