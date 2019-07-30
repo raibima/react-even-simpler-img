@@ -1,5 +1,7 @@
 # React Even Simpler Img
 
+Smaller (< 2KB) alternative of react-simple-img that doesn't include IntersectionObserver polyfill.
+
 ## Install
 
 ```bash
