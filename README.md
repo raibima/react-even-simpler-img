@@ -45,7 +45,7 @@ This library uses IntersectionObserver to lazy load images. If the browser doesn
 
 ## Error Handling
 
-To display a fallback when the image is failed to load, you need to wrap it with an [Error Boundary](https://reactjs.org/docs/error-boundaries.html).
+To display a fallback when the image fails to load, you need to wrap it with an [Error Boundary](https://reactjs.org/docs/error-boundaries.html).
 
 ```tsx
 // you need to have your own implementation
